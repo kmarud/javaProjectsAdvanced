@@ -10,7 +10,7 @@ public interface IGate extends Remote {
 
     boolean stop() throws RemoteException;
 
-    void setID(int id) throws RemoteException;          // metoda ktora wykona serwer
+    void setID(int id) throws RemoteException;
 
     int getID() throws RemoteException;
 

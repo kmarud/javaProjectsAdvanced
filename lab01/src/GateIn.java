@@ -15,18 +15,13 @@ public class GateIn extends Gate implements IGateIn {
     @Override
     public Ticket getTicket() {
         DateFormat df = new SimpleDateFormat("MMddyyHHmm");
-
-
-// Get the date today using Calendar object.
         Date today = Calendar.getInstance().getTime();
-// Using DateFormat format method we can create a string
-// representation of a date with the defined format.
         String reportDate = df.format(today);
-
         return new Ticket(Integer.parseInt(reportDate), Calendar.getInstance());
     }
 
     public static void main(String[] args) {        //arg0 - port, arg1 - nazwa kontrolera, arg2 - adres
+
         try{
             System.setSecurityManager(new SecurityManager());
             GateIn gateIn = new GateIn();
@@ -46,7 +41,7 @@ public class GateIn extends Gate implements IGateIn {
                     System.out.println("Press enter to get ticket ");
                     System.in.read();
                     Ticket ticket = gateIn.getTicket();
-                    System.out.println("Your ticket has ID: " + ticket.id);
+                    System.out.println("Your ticket has ID: " + ticket.getId());
                     Thread.sleep(5000);
                 }
                 else {

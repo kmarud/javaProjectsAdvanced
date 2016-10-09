@@ -5,11 +5,19 @@ import java.util.Calendar;
  */
 public class Ticket {
 
-    Calendar calendar;
-    int id;
+    private Calendar calendar;
+    private int id;
 
     Ticket(int id, Calendar calendar){
         this.id = id;
         this.calendar = calendar;
+    }
+
+    public Calendar getCalendar() {
+        return calendar;
+    }
+
+    public int getId() {
+        return id;
     }
 }

@@ -13,64 +13,54 @@ import java.util.concurrent.TimeUnit;
  */
 public class GateOut extends Gate implements IGateOut{
 
-    private final double zlPerMinute = 1.0;
+    private static final double PLN_PER_MINUTE = 1.0;
     static IControler stub;
+
     @Override
     public double checkTicket(Ticket ticket) {
-        validateTicketId(ticket.id);
-
-
-
         Calendar calendar  = Calendar.getInstance();
-        System.out.println("actual time :" + calendar.getTime());
+        System.out.println("Actual time:" + calendar.getTime());
 
-        //String string1 = "06/10/2016 22:06";
-        //String string1="22:03:13";
-        //Date time1 = new SimpleDateFormat("dd/MM/yyy HH:mm").parse(string1);
-        //Calendar calendar1 = Calendar.getInstance();
-        //calendar1.setTime(time1);
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(calendar.getTime().getTime() - ticket.getCalendar().getTime().getTime());
+        double fee = PLN_PER_MINUTE * minutes;
+        System.out.println("Counted minutes: " + minutes );
 
-        //Calendar cal =
-        //System.out.println(calendar1.compareTo(calendar));
-        long minutes = TimeUnit.MILLISECONDS.toMinutes(calendar.getTime().getTime() - ticket.calendar.getTime().getTime());
-        System.out.println(" minutes: " + minutes );
-
-        Bill bill = new Bill(ticket.id, zlPerMinute * minutes);
+        Bill bill = new Bill(ticket.getId(), fee);
 
         try {
-            stub.add(bill); // na tym skonczylem
+            stub.add(bill);
         } catch (RemoteException e) {
             e.printStackTrace();
         }
-        return zlPerMinute * minutes;
 
-
-
-        //ticket.calendar.getTime().getTime();
-        //return 0;
+        return fee;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) { //arg0 - port, arg1 - nazwa kontrolera, arg2 - adres
+        final int PORT = Integer.parseInt(args[0]);
+        final String CONTROLLER_NAME = args[1];
+        final String ADDRESS = args[2];
+
         try{
             GateOut gateOut = new GateOut();
-            UnicastRemoteObject.exportObject(gateOut, 0);
-            Registry registry = LocateRegistry.getRegistry("localhost");
-            stub = (IControler) registry.lookup("Server");
+            UnicastRemoteObject.exportObject(gateOut, PORT);
+            Registry registry = LocateRegistry.getRegistry(ADDRESS);
+            stub = (IControler) registry.lookup(CONTROLLER_NAME);
             stub.register(gateOut);
             System.out.println("Gateway has now ID: " + gateOut.getID());
-
             gateOut.start();
-
 
             while (true){
 
                 System.out.println(gateOut.statement);
-                System.in.read();
+               // System.in.read();
                 if(gateOut.isActive){
                     System.out.println("Press enter to check ticket ");
                     System.in.read();
                     Scanner scanner = new Scanner(System.in);
-                    System.out.println("Please enter ID");
+                    clearScreen();
+                    //scanner.nextLine();
+                    System.out.println("Please enter ticket ID: ");
 
                     int localID = scanner.nextInt();
                     //scanner.nextLine();
@@ -83,17 +73,17 @@ public class GateOut extends Gate implements IGateOut{
 
 
                     Ticket ticket = new Ticket(localID, calendar1);
-                    Double toPay = gateOut.checkTicket(ticket);
-                    System.out.println("Please pay " + toPay + " zl and press enter");
-                    //Thread.sleep(5000);
+                    Double fee = gateOut.checkTicket(ticket);
+                    System.out.println("Counted fee: " + fee + " PLN");
+                    System.out.println("Please pay and press enter");
                     System.in.read();
+                    //Thread.sleep(5000);
+                    clearScreen();
                 }
                 else {
-                    System.out.println("sorry !");
+                    System.out.println("Sorry, gate is temporarily unavailable");
                 }
-
             }
-
             //Thread.sleep(30*1000);
             //stub.unregister(gate);
             //System.out.println("Wyrejestrowano bramke !");
@@ -102,7 +92,8 @@ public class GateOut extends Gate implements IGateOut{
         }
     }
 
-    private void validateTicketId(int id){
-        ///
+    private static void clearScreen() {
+        System.out.print("\033[H\033[2J");
+        System.out.flush();
     }
 }

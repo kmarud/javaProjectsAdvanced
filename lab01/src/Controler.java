@@ -27,34 +27,35 @@ public class Controler implements IControler {
 
     @Override
     public boolean register(Object o) throws RemoteException {
-        IGate g = (IGate )o;
-        System.out.println("Nadano id: " +  count);
+        IGate g = (IGate)o;
+        System.out.println("Connected gate with id: " +  count);
         g.setID(count);
-        gates.add(g);
         count++;
-        return true;
+        return gates.add(g);
     }
 
     @Override
     public boolean unregister(Object o) throws RemoteException {
         IGate g = (IGate)o;
-        System.out.println("Wyrejestrowano bramke o id : " +  g.getID());
-        gates.remove(g);
-        return false;
+        System.out.println("Disconnected gate with id: : " +  g.getID());
+        return gates.remove(g);
     }
 
     @Override
     public void add(Bill bill) throws RemoteException {
         bills.add(bill);
-        System.out.println("Dodano racunek o id " + bill.getId() + " na kwote " + bill.getAmount());
+        System.out.println("Added bill with id " + bill.getId() + " with amount  " + bill.getAmount() + " PLN");
     }
 
-    public static void main(String[] args) {        //arg0 port, arg 1 - controller name
+    public static void main(String[] args) {            //arg0 - port, arg1 - controller name
+        final int PORT = Integer.parseInt(args[0]);
+        final String CONTROLLER_NAME = args[1];
+
         Controler controler = new Controler();
         try {
-            IControler stub = (IControler)UnicastRemoteObject.exportObject(controler, Integer.parseInt(args[0]));
+            IControler stub = (IControler)UnicastRemoteObject.exportObject(controler, PORT);
             Registry registry = LocateRegistry.getRegistry();
-            registry.rebind(args[1], stub);
+            registry.rebind(CONTROLLER_NAME, stub);
             System.out.println("Server waiting");
         } catch (RemoteException e) {
             e.printStackTrace();

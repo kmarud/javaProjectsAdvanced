@@ -30,15 +30,15 @@ public abstract class Gate implements IGate, Serializable{
     public boolean stop() throws RemoteException {
         isActive = false;
         statement = "Gate is not available";
-        System.out.println("bramka zatrzymana");
-        return true;        // czy potrzebne ?
+        System.out.println("Gate stopped");
+        return !this.isActive;
     }
 
     @Override
     public boolean start() throws RemoteException {
         isActive = true;
         statement = "Gate is active";
-        System.out.println("bramka dziala");
-        return true;        // czy potrzebne ?
+        System.out.println("Gate started");
+        return this.isActive;
     }
 }
