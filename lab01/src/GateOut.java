@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 public class GateOut extends Gate implements IGateOut{
 
     private static final double PLN_PER_MINUTE = 1.0;
-    static IControler stub;
+    private IControler stub;
     private Scanner scanner = new Scanner(System.in);
 
     @Override
@@ -39,7 +39,7 @@ public class GateOut extends Gate implements IGateOut{
         return fee;
     }
 
-    public static void main(String[] args) { //arg0 - port, arg1 - nazwa kontrolera, arg2 - adres
+    public static void main(String[] args) {
         final int PORT = Integer.parseInt(args[0]);
         final String CONTROLLER_NAME = args[1];
         final String ADDRESS = args[2];
@@ -48,17 +48,18 @@ public class GateOut extends Gate implements IGateOut{
             GateOut gateOut = new GateOut();
             UnicastRemoteObject.exportObject(gateOut, PORT);
             Registry registry = LocateRegistry.getRegistry(ADDRESS);
-            stub = (IControler) registry.lookup(CONTROLLER_NAME);
-            stub.register(gateOut);
-            System.out.println("Gateway has now ID: " + gateOut.getID());
+            gateOut.stub = (IControler) registry.lookup(CONTROLLER_NAME);
+            gateOut.stub.register(gateOut);
+            System.out.println("Gate has now ID: " + gateOut.getID());
             gateOut.start();
             while (true){
+                System.out.println("Gate IN ID: " + gateOut.getID());
                 System.out.println(gateOut.statement);
                 if(gateOut.isActive()){
                     System.out.println("Press enter to check ticket ");
                     int inChar = System.in.read();
                     if(inChar == 113){
-                        gateOut.switchOfGate();
+                        gateOut.unregisterGate();
                         return;
                     }
                     if(gateOut.isActive())
@@ -72,11 +73,6 @@ public class GateOut extends Gate implements IGateOut{
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    private static void clearScreen() {
-        System.out.print("\033[H\033[2J");
-        System.out.flush();
     }
 
     private void payTicketProcedure() throws IOException, ParseException {
@@ -97,7 +93,7 @@ public class GateOut extends Gate implements IGateOut{
         clearScreen();
     }
 
-    private void switchOfGate(){
+    private void unregisterGate(){
         try {
             stop();
             stub.unregister(this);

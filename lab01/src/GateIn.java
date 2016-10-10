@@ -13,8 +13,8 @@ import java.util.Date;
  */
 public class GateIn extends Gate implements IGateIn {
 
-    private static int ticketCounter=0;
-    static IControler stub;
+    //private static int ticketCounter=0;
+    private IControler stub;
 
     @Override
     public Ticket getTicket() {
@@ -24,24 +24,28 @@ public class GateIn extends Gate implements IGateIn {
         return new Ticket(Integer.parseInt(reportDate), Calendar.getInstance());
     }
 
-    public static void main(String[] args) {        //arg0 - port, arg1 - nazwa kontrolera, arg2 - adres
+    public static void main(String[] args) {
+        final int PORT = Integer.parseInt(args[0]);
+        final String CONTROLLER_NAME = args[1];
+        final String ADDRESS = args[2];
 
         try{
             System.setSecurityManager(new SecurityManager());
             GateIn gateIn = new GateIn();
-            UnicastRemoteObject.exportObject(gateIn, Integer.parseInt(args[0]));
-            Registry registry = LocateRegistry.getRegistry(args[2]);
-            stub = (IControler) registry.lookup(args[1]);
-            stub.register(gateIn);
-            System.out.println("Gateway has now ID: " + gateIn.getID());
+            UnicastRemoteObject.exportObject(gateIn, PORT);
+            Registry registry = LocateRegistry.getRegistry(ADDRESS);
+            gateIn.stub = (IControler) registry.lookup(CONTROLLER_NAME);
+            gateIn.stub.register(gateIn);
+            System.out.println("Gate has now ID: " + gateIn.getID());
             gateIn.start();
             while (true){
+                System.out.println("Gate out ID: " + gateIn.getID());
                 System.out.println(gateIn.statement);
                 if(gateIn.isActive()){
                     System.out.println("Press enter to get ticket ");
                     int inChar = System.in.read();
                     if(inChar == 113){
-                        gateIn.switchOfGate();
+                        gateIn.unregisterGate();
                         return;
                     }
                     if(gateIn.isActive())
@@ -66,12 +70,7 @@ public class GateIn extends Gate implements IGateIn {
         clearScreen();
     }
 
-    private static void clearScreen() {
-        System.out.print("\033[H\033[2J");
-        System.out.flush();
-    }
-
-    private void switchOfGate(){
+    private void unregisterGate(){
         try {
             stop();
             stub.unregister(this);

@@ -13,21 +13,25 @@ public class CView implements Remote{
     IControler stub;
     static CView view;
     public static void main(String[] args) {
+
+        final String CONTROLLER_NAME = args[0];
+        final String ADDRESS = args[1];
+
         try {
             view = new CView();
-            Registry registry = LocateRegistry.getRegistry("localhost");
-            view.stub = (IControler) registry.lookup("Server");
+            Registry registry = LocateRegistry.getRegistry(ADDRESS);
+            view.stub = (IControler) registry.lookup(CONTROLLER_NAME);
             Scanner scanner = new Scanner(System.in);
-            //stub.register(gate);
-            while(true) {
-                view.showGates();
 
-                System.out.println("f - refresh");
+            while(true) {
+                System.out.println("All gates:");
+                view.showGates();
+                System.out.println("\nf - refresh");
                 System.out.println("s - stop gate");
                 System.out.println("r - run gate");
                 System.out.println("b - show bills");
-
                 String choice = scanner.next();
+
                 switch (choice){
                     case "f" :
                         clearScreen();
@@ -98,11 +102,11 @@ public class CView implements Remote{
 
     private void showBills() throws RemoteException {
         double amount, sumOfAmount=0;
-        for(Bill b: view.stub.getBills()) {
-            amount = b.getAmount();
+        for(Bill bill: view.stub.getBills()) {
+            amount = bill.getAmount();
             sumOfAmount += amount;
-            System.out.println("Bill wih id " + b.getId() + ", amount " + amount + " PLN");
+            System.out.println("Bill wih id " + bill.getId() + ", amount " + amount + " PLN");
         }
-        System.out.println("### Sum of all bills:" + sumOfAmount + "PLN");
+        System.out.println("\n\n### Sum of all bills: " + sumOfAmount + " PLN");
     }
 }

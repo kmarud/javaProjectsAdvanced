@@ -10,10 +10,9 @@ import java.util.ArrayList;
  */
 public class Controler implements IControler {
 
-    ArrayList<IGate> gates = new ArrayList<>();
-    ArrayList<Bill> bills = new ArrayList<>();
-
-    static int count = 0;
+    private ArrayList<IGate> gates = new ArrayList<>();
+    private ArrayList<Bill> bills = new ArrayList<>();
+    private static int count = 0;
 
     @Override
     public ArrayList<IGate> getGates() throws RemoteException {
@@ -47,7 +46,7 @@ public class Controler implements IControler {
         System.out.println("Added bill with id " + bill.getId() + " with amount  " + bill.getAmount() + " PLN");
     }
 
-    public static void main(String[] args) {            //arg0 - port, arg1 - controller name
+    public static void main(String[] args) {
         final int PORT = Integer.parseInt(args[0]);
         final String CONTROLLER_NAME = args[1];
 
@@ -56,7 +55,7 @@ public class Controler implements IControler {
             IControler stub = (IControler)UnicastRemoteObject.exportObject(controler, PORT);
             Registry registry = LocateRegistry.getRegistry();
             registry.rebind(CONTROLLER_NAME, stub);
-            System.out.println("Server waiting");
+            System.out.println("Server ready");
         } catch (RemoteException e) {
             e.printStackTrace();
         }
