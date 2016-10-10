@@ -1,3 +1,5 @@
+import java.io.IOException;
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
@@ -10,7 +12,9 @@ import java.util.Date;
  * Created by kamil on 08.10.16.
  */
 public class GateIn extends Gate implements IGateIn {
+
     private static int ticketCounter=0;
+    static IControler stub;
 
     @Override
     public Ticket getTicket() {
@@ -27,38 +31,52 @@ public class GateIn extends Gate implements IGateIn {
             GateIn gateIn = new GateIn();
             UnicastRemoteObject.exportObject(gateIn, Integer.parseInt(args[0]));
             Registry registry = LocateRegistry.getRegistry(args[2]);
-            IControler stub = (IControler) registry.lookup(args[1]);
+            stub = (IControler) registry.lookup(args[1]);
             stub.register(gateIn);
             System.out.println("Gateway has now ID: " + gateIn.getID());
-
             gateIn.start();
-
             while (true){
-
-                System.in.read();
                 System.out.println(gateIn.statement);
-                if(gateIn.isActive){
+                if(gateIn.isActive()){
                     System.out.println("Press enter to get ticket ");
-                    System.in.read();
-                    Ticket ticket = gateIn.getTicket();
-                    System.out.println("Your ticket has ID: " + ticket.getId());
-                    Thread.sleep(5000);
+                    int inChar = System.in.read();
+                    if(inChar == 113){
+                        gateIn.switchOfGate();
+                        return;
+                    }
+                    if(gateIn.isActive())
+                        gateIn.getTicketProcedure();
                 }
                 else {
-                    System.out.println("sorry !");
+                    System.out.println("Sorry, gate is temporarily unavailable");
+                    System.in.read();
                 }
-
             }
-
-            //Thread.sleep(30*1000);
-            //stub.unregister(gate);
-            //System.out.println("Wyrejestrowano bramke !");
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void get(){
+    private void getTicketProcedure() throws IOException {
+        clearScreen();
+        Ticket ticket = this.getTicket();
+        System.out.println("Your ticket has ID: " + ticket.getId());
+        System.out.println("Please press enter");
+        System.in.read();
+        clearScreen();
+    }
 
+    private static void clearScreen() {
+        System.out.print("\033[H\033[2J");
+        System.out.flush();
+    }
+
+    private void switchOfGate(){
+        try {
+            stop();
+            stub.unregister(this);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -1,10 +1,7 @@
-import javax.swing.*;
-import java.awt.*;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.rmi.server.UnicastRemoteObject;
 import java.util.Scanner;
 
 /**
@@ -14,54 +11,43 @@ import java.util.Scanner;
 public class CView implements Remote{
 
     IControler stub;
-    IGate gate;
-    static CView c;
+    static CView view;
     public static void main(String[] args) {
         try {
-            c = new CView();
-            //Gate gate = new Gate();
-            //UnicastRemoteObject.exportObject(gate, 0);
+            view = new CView();
             Registry registry = LocateRegistry.getRegistry("localhost");
-            c.stub = (IControler) registry.lookup("Server");
+            view.stub = (IControler) registry.lookup("Server");
             Scanner scanner = new Scanner(System.in);
             //stub.register(gate);
             while(true) {
-                //c.area.setText("");
-                for(IGate g: c.stub.getGates())
-                {
-                    System.out.println(g.isActive());
-                    if(g instanceof IGateIn)
-                        System.out.println("Aktywna bramka IN o id " + g.getID());
-                    else if (g instanceof IGateOut)
-                        System.out.println("Akytwa bramka OUT o id" + g.getID());
-                    //  c.area.setText(String.valueOf(g.getID()));
-                    //c.f.add(c.area);
-                }
-                System.out.println("Nacisnij f zeby odswiezyc, s zeby zatrzymac, r zeby uruchomic, b zeby wyswietlic rachunki");
+                view.showGates();
+
+                System.out.println("f - refresh");
+                System.out.println("s - stop gate");
+                System.out.println("r - run gate");
+                System.out.println("b - show bills");
+
                 String choice = scanner.next();
                 switch (choice){
+                    case "f" :
+                        clearScreen();
+                        break;
                     case "s" :
-                        System.out.println("Podaj id bramki");
-
-                        c.switchOffGate(scanner.nextInt());
+                        System.out.println("Gate ID: ");
+                        view.switchOffGate(scanner.nextInt());
                         break;
                     case "r" :
-                        System.out.println("Podaj id bramki");
-                        c.switchOnGate(scanner.nextInt());
+                        System.out.println("Gate ID: ");
+                        view.switchOnGate(scanner.nextInt());
                         break;
                     case "b" :
-                        for(Bill b: c.stub.getBills())
-                        {
-                            clearScreen();
-                            System.out.println("Rachunek o id " + b.getId() + " na kwote " + b.getAmount());
-                            scanner.next();
-                            //  c.area.setText(String.valueOf(g.getID()));
-                            //c.f.add(c.area);
-                        }
+                        clearScreen();
+                        view.showBills();
+                        System.out.println("Press enter");
+                        System.in.read();
+                        clearScreen();
+                        break;
                 }
-                clearScreen();
-                //Thread.sleep(1000);
-                //new CView(stub.getGates().get(0).toString());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -69,22 +55,20 @@ public class CView implements Remote{
     }
 
     void switchOffGate(int id) throws RemoteException {
-        for(IGate g: c.stub.getGates())
-        {
+        for(IGate g: view.stub.getGates()) {
             if(g.getID() == id){
                 g.stop();
-                System.out.println("Bramka o id " + g.getID() + " zostala zatrzymana");
+                System.out.println("Gate with ID " + g.getID() + " is now inactive");
                 return;
             }
         }
     }
 
     void switchOnGate(int id) throws RemoteException {
-        for(IGate g: c.stub.getGates())
-        {
+        for(IGate g: view.stub.getGates()) {
             if(g.getID() == id){
                 g.start();
-                System.out.println("Bramka o id " + g.getID() + " zostala uruchomiona");
+                System.out.println("Gate with ID " + g.getID() + " is now active");
                 return;
             }
         }
@@ -93,5 +77,32 @@ public class CView implements Remote{
     private static void clearScreen() {
         System.out.print("\033[H\033[2J");
         System.out.flush();
+    }
+
+    private void showGates() throws RemoteException {
+        for(IGate g: view.stub.getGates()) {
+            String act,inOrOut="unknown";
+            if (g.isActive())
+                act="Active";
+            else
+                act="Inactive";
+
+            if (g instanceof IGateIn)
+                inOrOut ="IN";
+            else if (g instanceof IGateOut)
+                inOrOut ="OUT";
+
+            System.out.println(act + " gate " + inOrOut + " with ID: " + g.getID());
+        }
+    }
+
+    private void showBills() throws RemoteException {
+        double amount, sumOfAmount=0;
+        for(Bill b: view.stub.getBills()) {
+            amount = b.getAmount();
+            sumOfAmount += amount;
+            System.out.println("Bill wih id " + b.getId() + ", amount " + amount + " PLN");
+        }
+        System.out.println("### Sum of all bills:" + sumOfAmount + "PLN");
     }
 }

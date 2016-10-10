@@ -7,14 +7,15 @@ import java.util.concurrent.TimeUnit;
 
 public class ViewJFrame{
     public static void main(String[] args) throws Exception {
-
-
-        System.out.println("dziala");
-        System.in.read();
-        clearScreen();
-    }
-    public static void clearScreen() {
-        System.out.print("\033[H\033[2J");
-        System.out.flush();
-    }
+            int inChar;
+            System.out.println("Enter a Character:");
+            try {
+                inChar = System.in.read();
+                System.out.print("You entered ");
+                System.out.println(inChar);
+            }
+            catch (IOException e){
+                System.out.println("Error reading from user");
+            }
+        }
 }

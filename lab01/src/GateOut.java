@@ -1,7 +1,9 @@
+import java.io.IOException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -15,6 +17,7 @@ public class GateOut extends Gate implements IGateOut{
 
     private static final double PLN_PER_MINUTE = 1.0;
     static IControler stub;
+    private Scanner scanner = new Scanner(System.in);
 
     @Override
     public double checkTicket(Ticket ticket) {
@@ -49,44 +52,23 @@ public class GateOut extends Gate implements IGateOut{
             stub.register(gateOut);
             System.out.println("Gateway has now ID: " + gateOut.getID());
             gateOut.start();
-
             while (true){
-
                 System.out.println(gateOut.statement);
-               // System.in.read();
-                if(gateOut.isActive){
+                if(gateOut.isActive()){
                     System.out.println("Press enter to check ticket ");
-                    System.in.read();
-                    Scanner scanner = new Scanner(System.in);
-                    clearScreen();
-                    //scanner.nextLine();
-                    System.out.println("Please enter ticket ID: ");
-
-                    int localID = scanner.nextInt();
-                    //scanner.nextLine();
-                    //System.out.println("Please enter date from the ticket: dd/MM/yyy HH:mm ");
-                    //String localDate = scanner.nextLine();
-
-                    Date time1 = new SimpleDateFormat("MMddyyHHmm").parse(Integer.toString(localID));
-                    Calendar calendar1 = Calendar.getInstance();
-                    calendar1.setTime(time1);
-
-
-                    Ticket ticket = new Ticket(localID, calendar1);
-                    Double fee = gateOut.checkTicket(ticket);
-                    System.out.println("Counted fee: " + fee + " PLN");
-                    System.out.println("Please pay and press enter");
-                    System.in.read();
-                    //Thread.sleep(5000);
-                    clearScreen();
+                    int inChar = System.in.read();
+                    if(inChar == 113){
+                        gateOut.switchOfGate();
+                        return;
+                    }
+                    if(gateOut.isActive())
+                        gateOut.payTicketProcedure();
                 }
                 else {
                     System.out.println("Sorry, gate is temporarily unavailable");
+                    System.in.read();
                 }
             }
-            //Thread.sleep(30*1000);
-            //stub.unregister(gate);
-            //System.out.println("Wyrejestrowano bramke !");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -95,5 +77,32 @@ public class GateOut extends Gate implements IGateOut{
     private static void clearScreen() {
         System.out.print("\033[H\033[2J");
         System.out.flush();
+    }
+
+    private void payTicketProcedure() throws IOException, ParseException {
+        clearScreen();
+        System.out.println("Please enter ticket ID: ");
+
+        int localID = scanner.nextInt();
+
+        Date time1 = new SimpleDateFormat("MMddyyHHmm").parse(Integer.toString(localID));
+        Calendar calendar1 = Calendar.getInstance();
+        calendar1.setTime(time1);
+
+        Ticket ticket = new Ticket(localID, calendar1);
+        Double fee = this.checkTicket(ticket);
+        System.out.println("Counted fee: " + fee + " PLN");
+        System.out.println("Please pay and press enter");
+        System.in.read();
+        clearScreen();
+    }
+
+    private void switchOfGate(){
+        try {
+            stop();
+            stub.unregister(this);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
     }
 }
