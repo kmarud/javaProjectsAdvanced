@@ -58,7 +58,7 @@ public class GateOut extends Gate implements IGateOut{
                 if(gateOut.isActive()){
                     System.out.println("Press enter to check ticket ");
                     int inChar = System.in.read();
-                    if(inChar == 113){
+                    if(inChar == LITTLE_Q_KEY){
                         gateOut.unregisterGate();
                         return;
                     }

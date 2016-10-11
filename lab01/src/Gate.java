@@ -10,6 +10,7 @@ public abstract class Gate implements IGate, Serializable{
     protected int id;
     protected boolean isActive;
     protected String statement;
+    protected static final int LITTLE_Q_KEY = 113;
 
     @Override
     public void setID(int id) throws RemoteException {

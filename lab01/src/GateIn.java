@@ -30,7 +30,7 @@ public class GateIn extends Gate implements IGateIn {
         final String ADDRESS = args[2];
 
         try{
-            System.setSecurityManager(new SecurityManager());
+            //System.setSecurityManager(new SecurityManager());
             GateIn gateIn = new GateIn();
             UnicastRemoteObject.exportObject(gateIn, PORT);
             Registry registry = LocateRegistry.getRegistry(ADDRESS);
@@ -44,7 +44,7 @@ public class GateIn extends Gate implements IGateIn {
                 if(gateIn.isActive()){
                     System.out.println("Press enter to get ticket ");
                     int inChar = System.in.read();
-                    if(inChar == 113){
+                    if(inChar == LITTLE_Q_KEY){
                         gateIn.unregisterGate();
                         return;
                     }
