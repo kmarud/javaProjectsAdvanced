@@ -4,4 +4,4 @@ lab03/bin/
 .classpath
 .project
 .idea/
-.class
+*.class
