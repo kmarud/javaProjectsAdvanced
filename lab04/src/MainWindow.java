@@ -8,6 +8,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.awt.event.ActionEvent;
@@ -20,8 +21,8 @@ public class MainWindow {
 	private JList list = new JList();
 	private JTextPane txtField = new JTextPane();
 	private MyClassLoader myClassLoader;
-	private Class[] classes;
-	private String directoryPath = "C:/Users/Kamil/workspace/javaProjectsAdvanced/lab03/decorators/";
+	private ArrayList<Class> classes ;//= new ArrayList<>();
+	private String directoryPath = "C:/Users/Kamil/workspace/javaProjectsAdvanced/lab04/decorators/";
 
 	private String loremIpsum = "<i>Lorem ipsum</i> dolor sit amet, <i>consectetur adipiscing elit "
 			+ "</i>. In diam magna, <i>pharetra sed</i> metus ac, tincidunt lobortis augue. "
@@ -63,18 +64,31 @@ public class MainWindow {
 			}
 		}
 
-		classes = new Class[classesNames.size()];
+		classes = new ArrayList<>();//new Class[classesNames.size()];
 		
 		myClassLoader = new MyClassLoader();
 		myClassLoader.setPathToDirectory(directoryPath);
 		
 		for (int i=0; i < classesNames.size(); i++) {
-			try {
-				classes[i] = myClassLoader.loadClass(classesNames.get(i));
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
+		//	try {
+				Class a = myClassLoader.findClass(classesNames.get(i));
+
+				Annotation[] annotations = a.getAnnotations();
+				for(Annotation annotation : annotations){
+				    if(annotation instanceof Decorator){
+				    	classes.add(a);
+				    	break;
+				    }
+				}
+				a = null;
+				System.gc();
+				/*if (a != null){
+					a = myClassLoader.loadClass(classesNames.get(i));
+					classes.add(a);
+				}*/
+		/*	}catch (ClassNotFoundException e) {
 				e.printStackTrace();
-			}
+			}*/
 		}
 	}
 	
@@ -86,15 +100,30 @@ public class MainWindow {
 	
 	private void decorate(){
 		
-		Class decoratorClass = classes[list.getSelectedIndex()];
+		Class decoratorClass = classes.get(list.getSelectedIndex());
 
-		Method method;
-		try {
-			method = decoratorClass.getMethod("decorate", java.lang.String.class);
-			txtField.setText((String) method.invoke(decoratorClass.newInstance(), loremIpsum));
-		} catch (Exception e) {
-			e.printStackTrace();
+		Method[] methods = decoratorClass.getMethods();
+		for(Method met: methods){
+			Annotation[] annotations = met.getDeclaredAnnotations();
+			for(Annotation annotation : annotations){
+			    if(annotation instanceof Decorator){
+					try {
+						System.out.println(met);
+							Method method = decoratorClass.getMethod(met.getName(), java.lang.String.class);
+							txtField.setText((String) method.invoke(decoratorClass.newInstance(), loremIpsum));
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+			    }
+			}
 		}
+				
+		//try {
+	//		Method method = decoratorClass.getMethod(methodName, java.lang.String.class);
+		//	txtField.setText((String) method.invoke(decoratorClass.newInstance(), loremIpsum));
+		//} catch (Exception e) {
+		//	e.printStackTrace();
+		//}
 	}
 	
 	/**
@@ -122,9 +151,9 @@ public class MainWindow {
 				
 				loadClasses();
 
-				String[] classesNames = new String[classes.length];
-				for (int i = 0; i < classes.length; i++) {
-					classesNames[i] = classes[i].getName();
+				String[] classesNames = new String[classes.size()];
+				for (int i = 0; i < classes.size(); i++) {
+					classesNames[i] = classes.get(i).getName();
 				}
 
 				list.setModel(new AbstractListModel() {

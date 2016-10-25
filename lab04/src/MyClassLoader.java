@@ -1,5 +1,6 @@
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.lang.annotation.Annotation;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -33,7 +34,18 @@ public class MyClassLoader extends ClassLoader{
 			
 			byte[] classData = buffer.toByteArray();
 			
+			
 			return defineClass(className, classData, 0, classData.length);
+
+			/*Annotation[] annotations = aClass.getAnnotations();
+
+			for(Annotation annotation : annotations){
+			    if(annotation instanceof Decorator){
+			    	return aClass;
+			    }
+			}
+			
+			System.out.println("class " + className + "is not a decorator class");*/
 			
 		} catch(Exception e){
 			e.printStackTrace();
