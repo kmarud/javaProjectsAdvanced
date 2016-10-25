@@ -1,8 +1,9 @@
 
-public class ColorBlue {
-	public String witaj(String name){
-		name = name.replace("<i>", "<i style=\"color:blue;\">");
-		//name = name.replace("</i>", "</h1>");
-		return  name; 
+public class ColorBlue implements TextDecorator {
+
+	@Override
+	public String decorate(String s) {
+		s = s.replace("<i>", "<i style=\"color:blue;\">");
+		return s;
 	}
 }

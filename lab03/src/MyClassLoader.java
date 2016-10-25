@@ -5,14 +5,20 @@ import java.net.URLConnection;
 
 
 public class MyClassLoader extends ClassLoader{
+	
+	private String pathToDirecory;
 	public MyClassLoader(){
 		super(MyClassLoader.class.getClassLoader());
+	}
+	
+	public void setPathToDirectory(String pathToDirectory){
+		this.pathToDirecory = pathToDirectory;
 	}
 	
 	public Class findClass(String className){
 		try{
 			System.out.println("loading class " + className);
-			String url = "file:C:/Users/Kamil/workspace/javaProjectsAdvanced/lab03/decorators/" + className + ".class";
+			String url = "file:" + pathToDirecory + className + ".class";
 			URL myURL = new URL(url);
 			URLConnection connection = myURL.openConnection();
 			InputStream input = connection.getInputStream();
