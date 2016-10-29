@@ -70,25 +70,16 @@ public class MainWindow {
 		myClassLoader.setPathToDirectory(directoryPath);
 		
 		for (int i=0; i < classesNames.size(); i++) {
-		//	try {
+			//try {
 				Class a = myClassLoader.findClass(classesNames.get(i));
 
-				Annotation[] annotations = a.getAnnotations();
-				for(Annotation annotation : annotations){
-				    if(annotation instanceof Decorator){
-				    	classes.add(a);
-				    	break;
-				    }
-				}
-				a = null;
-				System.gc();
-				/*if (a != null){
-					a = myClassLoader.loadClass(classesNames.get(i));
+				if(a.isAnnotationPresent(Decorator.class)){
 					classes.add(a);
-				}*/
-		/*	}catch (ClassNotFoundException e) {
-				e.printStackTrace();
-			}*/
+				}
+				a=null;
+			//}catch (ClassNotFoundException e) {
+			//	e.printStackTrace();
+			//}
 		}
 	}
 	
