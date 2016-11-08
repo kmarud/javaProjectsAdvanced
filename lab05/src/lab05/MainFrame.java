@@ -3,6 +3,7 @@ package lab05;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 import javax.swing.JFrame;
 import javax.swing.JButton;
@@ -14,6 +15,7 @@ import javax.swing.DefaultComboBoxModel;
 public class MainFrame {
 
 	private JFrame frame;
+	public ArrayList<Form> forms = new ArrayList<Form>();
 
 	static class Form{
 		public JComboBox typ; 
@@ -21,7 +23,7 @@ public class MainFrame {
 		public static int position= 10;
 		public Form(JFrame frame){
 			typ = new JComboBox();		
-			typ.setModel(new DefaultComboBoxModel(new String[] {"email", "wiek", "imie"}));
+			typ.setModel(new DefaultComboBoxModel(new String[] {"email", "wiek", "imie","plec"}));
 			typ.setBounds(149, position, 100, 23);
 			frame.getContentPane().add(typ);
 			
@@ -30,6 +32,14 @@ public class MainFrame {
 			walidator.setBounds(267, position, 150, 22);
 			frame.getContentPane().add(walidator);
 			position+=40;
+		}
+		
+		int getTyp(){
+			return typ.getSelectedIndex();
+		}
+		
+		int getWalidator(){
+			return walidator.getSelectedIndex();
 		}
 	}
 	
@@ -68,27 +78,24 @@ public class MainFrame {
 		JButton btnAddNewForm = new JButton("Add new form");
 		btnAddNewForm.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				new Form(frame);
+				forms.add(new Form(frame));
+				//framnew Form(frame);
 				frame.repaint();
+				frame.revalidate();
 			}
 		});
 		btnAddNewForm.setBounds(10, 11, 129, 23);
 		frame.getContentPane().add(btnAddNewForm);
-		Form form = new Form(frame);
 		//new Form(frame);
-//		
-//		JComboBox comboBox = new JComboBox();
-//		comboBox.setModel(new DefaultComboBoxModel(new String[] {"email", "wiek", "imie"}));
-//		comboBox.setBounds(149, 11, 108, 23);
-//		frame.getContentPane().add(comboBox);
-//		
-//		JComboBox comboBox_1 = new JComboBox();
-//		comboBox_1.setModel(new DefaultComboBoxModel(new String[] {"walidator_Imie", "walidator_wiek"}));
-//		comboBox_1.setBounds(267, 11, 122, 22);
-//		frame.getContentPane().add(comboBox_1);
-		
+
 		JButton btnRun = new JButton("Run");
 		btnRun.setBounds(335, 227, 89, 23);
+		btnRun.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				FormsFrame frameWindow = new FormsFrame(forms);
+				frameWindow.frame.setVisible(true);
+			}
+		});
 		frame.getContentPane().add(btnRun);
 	}
 }
