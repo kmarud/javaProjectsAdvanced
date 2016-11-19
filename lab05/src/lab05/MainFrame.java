@@ -20,26 +20,41 @@ public class MainFrame {
 	static class Form{
 		public JComboBox typ; 
 		public JComboBox walidator;
+		public String[] models = {"Imie", "Pesel", "email", "wiek", "data", "URL"};
+		public String[][] validators = {{"ImieWalidator"}, {"PeselValidator"}, {"EmailValidator"}, 
+				{"WiekValidator"}, {"DzienMiesiacRok", "MiesiacDzienRok"}, {"UrlValidator"}};
 		public static int position= 10;
 		public Form(JFrame frame){
-			typ = new JComboBox();		
-			typ.setModel(new DefaultComboBoxModel(new String[] {"email", "wiek", "imie","plec"}));
+			typ = new JComboBox();	
+			Object index;
+			typ.setModel(new DefaultComboBoxModel(models));
 			typ.setBounds(149, position, 100, 23);
 			frame.getContentPane().add(typ);
-			
+			typ.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					// TODO Auto-generated method stub
+					walidator.setModel(new DefaultComboBoxModel(validators[typ.getSelectedIndex()]));
+				}
+			});
 			walidator = new JComboBox();
-			walidator.setModel(new DefaultComboBoxModel(new String[] {"walidator_Imie", "walidator_wiek"}));
+		//	walidator.setModel(new DefaultComboBoxModel(validators[typ.getSelectedIndex()]));
 			walidator.setBounds(267, position, 150, 22);
 			frame.getContentPane().add(walidator);
 			position+=40;
 		}
 		
-		int getTyp(){
-			return typ.getSelectedIndex();
+		String getTyp(){
+			//return 99;
+			//return "abc";
+			//return typ.getSelectedIndex();
+			return models[typ.getSelectedIndex()];
 		}
 		
-		int getWalidator(){
-			return walidator.getSelectedIndex();
+		String getWalidator(){
+			//return "cos";
+			return validators[typ.getSelectedIndex()][walidator.getSelectedIndex()];
 		}
 	}
 	
