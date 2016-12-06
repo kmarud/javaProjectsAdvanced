@@ -1,0 +1,16 @@
+
+C:\MinGW\bin>gcc -o hello.dll HelloWorld.c HelloWorld.h -c -I"C:\Program Files\J
+ava\jdk1.8.0_102\include" -I"C:\Program Files\Java\jdk1.8.0_102\include\win32"
+gcc: fatal error: cannot specify -o with -c, -S or -E with multiple files
+compilation terminated.
+
+C:\MinGW\bin>gcc HelloWorld.c HelloWorld.h -c -I"C:\Program Files\Java\jdk1.8.0_
+102\include" -I"C:\Program Files\Java\jdk1.8.0_102\include\win32"
+
+C:\MinGW\bin>gcc -shared -o hellodll.dll HelloWorld.c HelloWorld.h -c -I"C:\Prog
+ram Files\Java\jdk1.8.0_102\include" -I"C:\Program Files\Java\jdk1.8.0_102\inclu
+de\win32"
+gcc: fatal error: cannot specify -o with -c, -S or -E with multiple files
+compilation terminated.
+
+C:\MinGW\bin>
