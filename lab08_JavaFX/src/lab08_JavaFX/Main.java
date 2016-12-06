@@ -1,13 +1,16 @@
 package lab08_JavaFX;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import javafx.application.Application; 
 import javafx.collections.ObservableList; 
-import javafx.scene.Group; 
+//import javafx.scene.*; 
 import javafx.scene.Scene; 
 import javafx.stage.Stage; 
 import javafx.scene.text.Font; 
-import javafx.scene.text.Text; 
-      
 
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -59,10 +62,16 @@ public class Main extends Application {
    
     public static void main(String[] args) {
         launch(args);
+//        try {
+//			generateXML();
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
     }
  
     @Override
-    public void start(Stage stage) {
+    public void start(Stage stage) throws Exception{
         Scene scene = new Scene(new Group());
         stage.setTitle("Klasyfikacja");
         stage.setWidth(800);
@@ -129,24 +138,37 @@ public class Main extends Application {
  
         stage.setScene(scene);
         stage.show();
+        
+       
+    }
+    
+    public static void generateXML() throws Exception{
+    	 Person person = new Person("asd", "asd", "ddd");
+         JAXBContext jaxbContext = JAXBContext.newInstance(Person.class);
+         Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+         jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+         
+         //WYŚWIETLENIE NA OUT
+//         jaxbMarshaller.marshal(person, System.out);
     }
  
     public static class Concurs{
-    	 private final SimpleStringProperty name;
+    	 private String name;
     	 
          private Concurs(String name) {
-             this.name = new SimpleStringProperty(name);
+             this.name = name;
          }
   
          public String getName() {
-             return name.get();
+             return name;
          }
   
          public void setName(String name) {
-        	 this.name.set(name);
+        	 this.name = name;
          }
     }
     
+    @XmlRootElement(name="pozycja")
     public static class Person {
  
         private final SimpleStringProperty firstName;
@@ -159,6 +181,7 @@ public class Main extends Application {
             this.email = new SimpleStringProperty(email);
         }
  
+        @XmlAttribute(name="kod")
         public String getFirstName() {
             return firstName.get();
         }
